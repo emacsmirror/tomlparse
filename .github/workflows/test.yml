@@ -19,6 +19,7 @@ jobs:
       matrix:
         emacs_version:
           - 29.4
+          - 30.1
           - 'release-snapshot'
           - 'snapshot'
         include:
@@ -40,6 +41,10 @@ jobs:
         uses: baptiste0928/cargo-install@v3.3.0
         with:
           crate: toml2json
+
+      - name: Install tree-sitter toml gramar
+        run: |
+          emacs -Q -batch --eval "(progn (require 'treesit) (add-to-list 'treesit-language-source-alist '(toml \"https://github.com/tree-sitter/tree-sitter-toml\")) (treesit-install-language-grammar 'toml))"
       - name: Install dependencies
         run: '$HOME/.cask/bin/cask install'
 
