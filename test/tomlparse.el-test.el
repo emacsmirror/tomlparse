@@ -613,7 +613,7 @@ name = \"plantain\"
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest invalid-double-line ()
-  (skip-when "Treesitter does not catch this.")
+  (skip-unless nil) ;  Treesitter does not catch this.
   (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1") :occur 1))))
     (with-temp-buffer
       (insert "first = \"Tom\" last = \"Preston-Werner\" # INVALID")
