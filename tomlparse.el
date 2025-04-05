@@ -211,7 +211,28 @@ In case of an array of tables the last table of the array is returned."
   (let ((node-text (treesit-node-text key-node)))
     (pcase (treesit-node-type key-node)
       ("bare_key" node-text)
-      ("quoted_key" (substring node-text 1 -1)))))
+      ("quoted_key" (if (equal (treesit-node-type (cadr (treesit-node-children key-node))) "escape_sequence")
+                        (tomlparse--literal-string node-text)
+                      (substring node-text 1 -1))))))
+
+(defun tomlparse--literal-string (string)
+  ;(message "string literal: %s" string)
+  (json-parse-string
+   ;(tomlparse--escape-escape
+   (progn ;(message "%s" (tomlparse--capital-unicode-escapes string))
+          (tomlparse--capital-unicode-escapes string))))
+;)
+
+(defun tomlparse--capital-unicode-escapes (string)
+  ;(message "unescaping %s" string)
+  (replace-regexp-in-string
+   "\\\\U\\([0-9a-fA-F]\\{8\\}\\)"
+   (lambda (match)
+     (char-to-string (string-to-number (match-string 1 match) 16)))
+   (replace-regexp-in-string "\\\\U0\\{4\\}\\([0-9a-fA-F]\\{4\\}\\)" "\\\\u\\1" string t) t))
+
+(defun tomlparse--escape-escape (string)
+  (replace-regexp-in-string "\\e" "\\\\u001b" string))
 
 (defun tomlparse--value (node)
   "Parse the pair value of NODE."
@@ -236,16 +257,27 @@ In case of an array of tables the last table of the array is returned."
 (defun tomlparse--string (value)
   "Parse the string and un-escape in VALUE."
   (cond ((eq (string-match "\"\"\"\n*\\(\\(.\\|\n\\)*\\)\"\"\"" value) 0)
-         (tomlparse--unmask-triple-quote-string (replace-regexp-in-string "\\\\[ \n\t]+" "" (match-string 1 value))))
+         (tomlparse--unmask-triple-quote-string
+          (replace-regexp-in-string "\\\\[ \n\t]+" "" (match-string 1 value))))
         ((eq (string-match "'''\n*\\(\\(.\\|\n\\)*\\)'''" value) 0)
-         (tomlparse--unmask-triple-quote-string (match-string 1 value)))
+         (match-string 1 value))
         ((eq (string-match "'\\(.*\\)'" value) 0)
          (match-string 1 value))
-        (t (json-parse-string value))))
+        (t (tomlparse--literal-string value))))
 
 (defun tomlparse--unmask-triple-quote-string (string)
   "Unmask t \"\"\"triple quoted string\"\"\" STRING."
-  (string-replace "\\\"" "\"" string))
+  ;(message "tripple quoted string: %s" string)
+  (tomlparse--literal-string
+   (format "\"%s\""
+           (string-replace
+            "\t" "\\t"
+            (string-replace
+             "\n" "\\n"
+             (string-replace
+              "\"" "\\\""
+              (string-replace
+               "\\\"" "\"" string)))))))
 
 (defun tomlparse--number-to-string (value)
   "Parse a number from the value string VALUE."

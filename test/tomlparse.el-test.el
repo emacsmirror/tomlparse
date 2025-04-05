@@ -184,6 +184,37 @@ trailing-comma-2 = { c = 1, }
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
+(ert-deftest quoted-unicode-keys ()
+  (with-temp-buffer
+    (insert "
+\"\\u0000\" = \"null\"
+'\\u0000' = \"different key\"
+\"\\u0008 \\u000c \\U00000041 \\u007f \\u0080 \\u00ff \\ud7ff \\ue000 \\uffff \\U00010000 \\U0010ffff\" = \"escaped key\"
+
+\"~  ÿ ퟿  ￿ 𐀀 􏿿\" = \"basic key\"
+'l ~  ÿ ퟿  ￿ 𐀀 􏿿' = \"literal key\"
+")
+    (let ((expected (json-parse-string "{\"\\u0000\":\"null\",\"\\b \\f A   ÿ ퟿  ￿ 𐀀 􏿿\":\"escaped key\",\"\\\\u0000\":\"different key\",\"l ~  ÿ ퟿  ￿ 𐀀 􏿿\":\"literal key\",\"~  ÿ ퟿  ￿ 𐀀 􏿿\":\"basic key\"}")))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+(ert-deftest one-quoted-unicode-key-first-position ()
+  (with-temp-buffer
+    (insert "
+\"\\u0000\" = \"null\"")
+    (let ((expected (json-parse-string "{\"\\u0000\":\"null\"}")))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+(ert-deftest one-quoted-unicode-key-last-position ()
+  (with-temp-buffer
+    (insert "
+\"uuu\\u0000\" = \"null\"")
+    (let ((expected (json-parse-string "{\"uuu\\u0000\":\"null\"}")))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+
 (ert-deftest string-with-masked-characters ()
   (with-temp-buffer
     (insert "str = \"I'm a string. \\\"You can quote me\\\". Name\\tJos\\u00E9\\nLocation\\tSF.\"")
@@ -208,6 +239,14 @@ The quick brown \\
 
   fox jumps over \\
     the lazy dog.\"\"\"")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+(ert-deftest string-multi-lined-tab ()
+  (with-temp-buffer
+    (insert "
+keep-ws-before = \"\"\"a\t\nb\"\"\"")
     (let ((expected (external-toml-parser)))
       (should (hash-equal (tomlparse-buffer) expected)))))
 
@@ -268,6 +307,36 @@ str6 = \"\"\"Here are fifteen quotation marks: \"\"\\\"\"\"\\\"\"\"\\\"\"\"\\\"\
       (insert "
 # \"This,\" she said, \"is just a pointless statement.\"
 str7 = \"\"\"\"This,\" she said, \"is just a pointless statement.\"\"\"\"
+")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+(ert-deftest string-unicode-escape-normal-quote ()
+  (with-temp-buffer
+    (insert "
+delta-1 = \"\\u03B4\"
+delta-2 = \"\\U000003B4\"
+a       = \"\\u0061\"
+b       = \"\\u0062\"
+c       = \"\\U00000063\"
+null-1  = \"\\u0000\"
+null-2  = \"\\U00000000\"
+")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+(ert-deftest string-unicode-escape-triple-quote ()
+  (with-temp-buffer
+    (insert "
+ml-delta-1 = \"\"\"\\u03B4\"\"\"
+ml-delta-2 = \"\"\"\\U000003B4\"\"\"
+ml-a       = \"\"\"\\u0061\"\"\"
+ml-b       = \"\"\"\\u0062\"\"\"
+ml-c       = \"\"\"\\U00000063\"\"\"
+ml-null-1  = \"\"\"\\u0000\"\"\"
+ml-null-2  = \"\"\"\\U00000000\"\"\"
 ")
     (let ((expected (external-toml-parser)))
       (should (hash-equal (tomlparse-buffer) expected)))))
