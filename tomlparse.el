@@ -46,46 +46,59 @@
 
 The arguments ARGS are a list of keyword/argument pairs:
 
-:false-object OBJ -- use TYPE to represent the toml false value.
+:object-type TYPE -- use TYPE to represent TOML tables.
+  Type can be hash-table (the default), `alist' or `plist'
+
+:false-object OBJ -- use TYPE to represent the TOML false value.
   It defaults to :false.
 
-:datetime-as SYM -- If SYM equals `string', datetime fields are passed
-through as string.  Otherwise they are passed as iso8601 datetime and
-put into a list."
+:datetime-as SYM -- If SYM equals `string'.
+  `datetime' fields are passed through as string.  Otherwise they are
+  passed as iso8601 datetime and put into a list."
   (with-temp-buffer
     (insert-file-contents filename)
     (apply #'tomlparse-buffer args)))
 
 (defun tomlparse-buffer (&rest args)
-  "Return toml data from the current buffer as a hash table.
+  "Return TOML data from the current buffer as a hash table.
 
 The arguments ARGS are a list of keyword/argument pairs:
 
-:false-object OBJ -- use TYPE to represent the toml false value.
+:object-type TYPE -- use TYPE to represent TOML tables.
+  Type can be hash-table (the default), `alist' or `plist'
+
+:false-object OBJ -- use TYPE to represent the TOML false value.
   It defaults to :false.
 
-:datetime-as SYM -- If SYM equals `string', datetime fields are passed
-through as string.  Otherwise they are passed as iso8601 datetime and
-put into a list."
-  (apply #'tomlparse-string (buffer-string) args))
+:datetime-as SYM -- If SYM equals `string'.
+  `datetime' fields are passed through as string.  Otherwise they are
+  passed as iso8601 datetime and put into a list."
+  (apply #'tomlparse-string (substring-no-properties (buffer-string)) args))
 
 (defun tomlparse-string (string &rest args)
   "Return a hash table with the contents of the toml data STRING.
 
 The arguments ARGS are a list of keyword/argument pairs:
 
-:false-object OBJ -- use TYPE to represent the toml false value.
+:object-type TYPE -- use TYPE to represent TOML tables.
+  Type can be hash-table (the default), `alist' or `plist'
+
+:false-object OBJ -- use TYPE to represent the TOML false value.
   It defaults to :false.
 
-:datetime-as SYM -- If SYM equals `string', datetime fields are passed
-through as string.  Otherwise they are passed as iso8601 datetime and
-put into a list."
+:datetime-as SYM -- If SYM equals `string'.
+  `datetime' fields are passed through as string.  Otherwise they are
+  passed as iso8601 datetime and put into a list."
   (setq tomlparse--false-object (cadr (or (plist-member args :false-object) '(t :false))))
   (setq tomlparse--datetime-object (plist-get args :datetime-as))
-  (catch 'result
-    (let ((root (treesit-parse-string string'toml)))
-      (setq tomlparse--seen-table-arrays nil)
-      (throw 'result (tomlparse--table root)))))
+  (let ((result-hash-table (catch 'result
+                             (let ((root (treesit-parse-string string'toml)))
+                               (setq tomlparse--seen-table-arrays nil)
+                               (throw 'result (tomlparse--table root))))))
+    (pcase (plist-get args :object-type)
+      ('alist (tomlparse--hash-table-to-alist result-hash-table))
+      ('plist (tomlparse--hash-table-to-plist result-hash-table))
+      (_ result-hash-table))))
 
 
 (defun tomlparse--table (root)
@@ -246,6 +259,29 @@ In case of an array of tables the last table of the array is returned."
   "Parse the value of array element NODE if it is an array element."
   (unless (member (treesit-node-type node) '("[" "]" ","))
     (tomlparse--value node)))
+
+(defun tomlparse--hash-table-to-alist (hash-table)
+  "Recursively convert HASH-TABLE to a nested alist."
+  (let (alist)
+    (maphash (lambda (key value)
+               (let ((value (if (hash-table-p value)
+                                (tomlparse--hash-table-to-alist value)
+                              value)))
+                 (setq alist (cons (cons key value) alist))))
+             hash-table)
+    alist))
+
+(defun tomlparse--hash-table-to-plist (hash-table)
+  "Recursively convert HASH-TABLE to a nested plist."
+  (let (plist)
+    (maphash (lambda (key value)
+               (let ((value (if (hash-table-p value)
+                                (tomlparse--hash-table-to-plist value)
+                              value)))
+                 (setq plist (cons key (cons value plist)))))
+             hash-table)
+    plist))
+
 
 (defun tomlparse--error (&optional msg)
   "Write an error message referencing the line of NODE and maybe MSG."

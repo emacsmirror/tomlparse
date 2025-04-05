@@ -535,6 +535,22 @@ key2 = 456")
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
+(ert-deftest two-tables-in-supertable ()
+  (with-temp-buffer
+    (insert "
+[super-table]
+
+[super-table.table-1]
+key1 = \"some string\"
+key2 = 123
+
+[super-table-2]
+key1 = \"another string\"
+key2 = 456")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
 (ert-deftest array-of-tables-simple ()
   (with-temp-buffer
     (insert "
@@ -604,6 +620,26 @@ name = \"plantain\"
 ")
     (let ((expected (external-toml-parser)))
       (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+(ert-deftest object-type-alist ()
+  (with-temp-buffer
+    (insert "
+fruit.apple.smooth = true
+fruit.apple.taste = \"sweet\"
+")
+    (let ((expected '(("fruit" ("apple" ("taste" . "sweet") ("smooth" . t))))))
+      (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
+
+
+(ert-deftest object-type-plist ()
+  (with-temp-buffer
+    (insert "
+fruit.apple.smooth = true
+fruit.apple.taste = \"sweet\"
+")
+    (let ((expected '("fruit" ("apple" ("taste" "sweet" "smooth" t)))))
+      (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
 
 
 (ert-deftest inclomplete-pair-line-1 ()
