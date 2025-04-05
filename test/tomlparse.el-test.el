@@ -719,6 +719,70 @@ fruits = \"apple\"
 ")
       (should-not (tomlparse-buffer)))))
 
+(ert-deftest without-super ()
+  (with-temp-buffer
+    (insert "
+# [x] you
+# [x.y] don't
+# [x.y.z] need these
+[x.y.z.w] # for this to work
+[x] # defining a super-table afterwards is ok
+")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+(ert-deftest table-implicit-and-explicit-after ()
+  (with-temp-buffer
+    (insert "
+[a.b.c]
+answer = 42
+
+[a]
+better = 43
+")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+(ert-deftest array-implicit-and-explicit-after ()
+  (with-temp-buffer
+    (insert "
+[[a.b]]
+answer = 42
+
+[a]
+better = 43
+")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
+(ert-deftest table-defined-twice ()
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (table `fruit` already defined)") :occur 1))))
+    (with-temp-buffer
+      (insert "
+# DO NOT DO THIS
+
+[fruit]
+apple = \"red\"
+
+[fruit]
+orange = \"orange\"")
+      (should-not (tomlparse-buffer)))))
+
+(ert-deftest super-table-first ()
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (table `fruit.apple` already defined)") :occur 1))))
+    (with-temp-buffer
+      (insert "
+# DO NOT DO THIS EITHER
+
+[fruit]
+apple = \"red\"
+
+[fruit.apple]
+texture = \"smooth\"")
+      (should-not (tomlparse-buffer)))))
+
 
 (ert-deftest conflicting-table-with-previous-array-of-tables ()
   (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 9 (table `fruits.varieties` already defined)") :occur 1))))

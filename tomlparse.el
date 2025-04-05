@@ -129,11 +129,20 @@ The arguments ARGS are a list of keyword/argument pairs:
   (let* ((target (tomlparse--climb-tree (cadr (treesit-node-children node)) hash-table))
          (key (tomlparse--key-text (car target)))
          (target-hash-table (or (cdr target) hash-table))
+
          (value (tomlparse--table node)))
-    (when (gethash key target-hash-table)
-      (tomlparse--error (format "table `%s` already defined"
-                                (treesit-node-text (cadr (treesit-node-children  tomlparse--current-node))))))
-    (puthash key value target-hash-table)))
+    (if-let* ((already-existing (gethash key target-hash-table)))
+        (progn
+;          (message "already-existing: %s" already-existing)
+          (if (and (hash-table-p already-existing)
+                   (or (cl-find-if #'hash-table-p (hash-table-values already-existing))
+                       (cl-find-if #'vectorp (hash-table-values already-existing))))
+             (when-let* ((key (car (hash-table-keys value)))
+                         (value (car (hash-table-values value))))
+               (puthash key value already-existing))
+           (tomlparse--error (format "table `%s` already defined"
+                                     (treesit-node-text (cadr (treesit-node-children  tomlparse--current-node)))))))
+      (puthash key value target-hash-table))))
 
 (defun tomlparse--table-array-element (node hash-table)
   "Analyze the toml table array element covered by NODE and put it into HASH-TABLE."
