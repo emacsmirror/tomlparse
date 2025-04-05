@@ -110,7 +110,7 @@ The arguments ARGS are a list of keyword/argument pairs:
           ("pair" (tomlparse--pair node root-hash-table))
           ("table" (tomlparse--subtable node root-hash-table))
           ("table_array_element" (tomlparse--table-array-element node root-hash-table))
-          ("ERROR" (tomlparse--error)))))
+          ("ERROR" (tomlparse--error "parser reported error")))))
     root-hash-table))
 
 (defun tomlparse--pair (node hash-table)

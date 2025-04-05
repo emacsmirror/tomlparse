@@ -670,32 +670,32 @@ fruit.apple.taste = \"sweet\"
 
 
 (ert-deftest inclomplete-pair-line-1 ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
     (with-temp-buffer
       (insert "key = # INVALID")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest invalid-double-line ()
   (skip-unless nil) ;  Treesitter does not catch this.
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
     (with-temp-buffer
       (insert "first = \"Tom\" last = \"Preston-Werner\" # INVALID")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest missing-key ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
     (with-temp-buffer
       (insert "= \"no key name\"  # INVALID")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest referencing-key ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
     (with-temp-buffer
       (insert "foo = bar")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest inclomplete-pair-after-valid ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 2") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 2 (parser reported error)") :occur 1))))
     (with-temp-buffer
       (insert "key = 123\nbroken = # INVALID")
       (should-not (tomlparse-buffer)))))
@@ -857,7 +857,7 @@ fruits = []
 
 
 (ert-deftest list-of-known-table-arrays-is-reset-after-failure ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (parser reported error)") :occur 1))))
     (with-temp-buffer
       (insert "
 # INVALID TOML DOC
