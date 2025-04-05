@@ -155,6 +155,21 @@ struct = { name = \"Baz Qux\", email = \"bazqux@example.com\", url = \"https://e
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
+(ert-deftest inline-table-line-break ()
+  (skip-unless nil)  "The tree sitter gramar does not do TOML 1.1"
+  (with-temp-buffer
+    (insert "
+# TOML 1.1 supports newlines in inline tables and trailing commas.
+
+trailing-comma-1 = {
+	c = 1,
+}
+trailing-comma-2 = { c = 1, }
+")
+    (let ((expected "{\"trailing-comma-1\":{\"c\":1},\"trailing-comma-2\":{\"c\":1}}"))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
 (ert-deftest double-quoted-key ()
   (with-temp-buffer
     (insert "\"key\" = 2342")
@@ -456,6 +471,18 @@ lt2 = 00:32:00.999999
       (puthash "lt2" "00:32:00.999999" expected)
       (should (hash-equal (tomlparse-buffer :datetime-as 'string) expected)))))
 
+
+(ert-deftest local-time-no-seconds-iso8061 ()
+  (skip-unless nil)  ; tree sitter gramar does not accept this
+  (with-temp-buffer
+    (insert "
+lt1 = 07:32
+lt2 = 00:32:00.999999
+")
+    (let ((expected (make-hash-table :test 'equal)))
+      (puthash "lt1" '(0 32 7 nil nil nil nil -1 nil) expected)
+      (puthash "lt2" '(0 32 0 nil nil nil nil -1 nil) expected)
+      (should (hash-equal (tomlparse-buffer) expected)))))
 
 
 (ert-deftest arrays ()
