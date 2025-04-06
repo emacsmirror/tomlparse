@@ -860,6 +860,23 @@ better = 43
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
+(ert-deftest without-super-with-values ()
+  (with-temp-buffer
+    (insert "
+# [x] you
+# [x.y] don't
+# [x.y.z] need these
+[x.y.z.w] # for this to work
+a = 1
+b = 2
+[x] # defining a super-table afterwards is ok
+c = 3
+d = 4
+")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
 (ert-deftest table-defined-twice ()
   (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (table `fruit` already defined)") :occur 1))))
     (with-temp-buffer
