@@ -312,6 +312,13 @@ str7 = \"\"\"\"This,\" she said, \"is just a pointless statement.\"\"\"\"
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
+(ert-deftest string-escape-esc ()
+  (with-temp-buffer
+    (insert "esc = \"\e There is no escape! \e\"")
+    (let ((expected (external-toml-parser)))
+      (should (hash-equal (tomlparse-buffer) expected)))))
+
+
 (ert-deftest string-unicode-escape-normal-quote ()
   (with-temp-buffer
     (insert "
