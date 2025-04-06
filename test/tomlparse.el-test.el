@@ -444,7 +444,7 @@ odt4 = 1979-05-27 07:32:00Z
     (let ((expected (make-hash-table :test 'equal)))
       (puthash "odt1" `(0 32 7 27 5 1979 nil nil 0) expected)
       (puthash "odt2" `(0 32 0 27 5 1979 nil -1 ,(* -7 3600)) expected)
-      (puthash "odt3" `(0 32 0 27 5 1979 nil -1 ,(* -7 3600)) expected)
+      (puthash "odt3" `((999999 . 1000000) 32 0 27 5 1979 nil -1 ,(* -7 3600)) expected)
       (puthash "odt4" `(0 32 7 27 5 1979 nil nil 0) expected)
       (should (hash-equal (tomlparse-buffer) expected)))))
 
@@ -474,7 +474,7 @@ ldt3 = 1979-05-27 07:32:00
 ")
     (let ((expected (make-hash-table :test 'equal)))
       (puthash "ldt1" '(0 32 7 27 5 1979 nil -1 nil) expected)
-      (puthash "ldt2" '(0 32 0 27 5 1979 nil -1 nil) expected)
+      (puthash "ldt2" '((999999 . 1000000) 32 0 27 5 1979 nil -1 nil) expected)
       (puthash "ldt3" '(0 32 7 27 5 1979 nil -1 nil) expected)
       (should (hash-equal (tomlparse-buffer) expected)))))
 
@@ -525,7 +525,7 @@ lt2 = 00:32:00.999999
 ")
     (let ((expected (make-hash-table :test 'equal)))
       (puthash "lt1" '(0 32 7 nil nil nil nil -1 nil) expected)
-      (puthash "lt2" '(0 32 0 nil nil nil nil -1 nil) expected)
+      (puthash "lt2" '((999999 . 1000000) 32 0 nil nil nil nil -1 nil) expected)
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 

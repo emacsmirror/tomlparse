@@ -244,13 +244,13 @@ In case of an array of tables the last table of the array is returned."
       ((or "offset_date_time" "local_date_time")
        (pcase tomlparse--datetime-object
          ('string value)
-         (_ (iso8601-parse  (string-replace " " "T" value)))))
+         (_ (iso8601-parse (string-replace " " "T" value) t))))
       ("local_date" (pcase tomlparse--datetime-object
          ('string value)
          (_ (iso8601-parse-date (string-replace " " "T" value)))))
       ("local_time" (pcase tomlparse--datetime-object
          ('string value)
-         (_ (iso8601-parse-time (string-replace " " "T" value)))))
+         (_ (iso8601-parse-time (string-replace " " "T" value) t))))
       ("array" (tomlparse--array node))
       ("inline_table" (tomlparse--table node)))))
 
