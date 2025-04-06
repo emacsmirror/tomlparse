@@ -1,3 +1,5 @@
+(package-file "tomlparse.el")
+
 (source gnu)
 (source melpa)
 
