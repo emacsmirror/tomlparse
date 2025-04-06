@@ -12,7 +12,7 @@ elisp functions `(tomlparse-file)`, `(tomlparse-buffer)` and
 and `(json-parse-buffer)` but read toml rather than json.
 
 
-## Why a new toml parser – isn't there toml.el
+## Why a new toml parser – isn't there toml.el?
 
 I am aware of toml.el aka [emacs-toml](https://github.com/gongo/emacs-toml) and
 I've been using it and I even have contributed to it.  However, the package is
@@ -26,10 +26,11 @@ Tree-sitter.)
 
 ## Status
 
-The thing seems to be feature complete, reads all the example of the [toml
-spec](https://toml.io/en/v1.0.0) correctly.  After some practice test I will
-propose it to MELPa.  Be aware that this has been written during three evenings
-after work.  So there can be issues. Please repolrt them
+The thing seems to be feature complete (see [Limitations](#limitations).
+
+After some practice test I will propose it to MELPa.  Be aware that this has
+been written during three evenings after work and a couple of hours during the
+following weekend..  So there can be issues.  Please report them.
 
 
 ## Installation
@@ -43,12 +44,28 @@ into your startup file.
   :straight (tomlparse :type git :host github :repo "johannes-mueller/tomlparse.el"))
 ```
 
+Eventually after some tests in real life I will propose it to MELPA.
+
+
+## Limitations
+
+The read functions read all the example of the [toml
+spec](https://toml.io/en/v1.0.0) correctly.  There are a couple of valid test
+files in [toml-test](https://github.com/toml-lang/toml-test) that are no
+correctly read in or not read in at all.  This is due to shortcomings in the
+tree sitter grammar and issues with escape sequences in string literals of the
+TOML data.  The latter is especially relevant for Emacs versions < 30.1.
+
+The shortcomings in tree sitter grammar I will report in the hope they will be
+eventually fixed.  About the others I will see how relevant they are in
+practice.  Please let me know if you have some kind of stake in there.
+
 
 ## Future plans
 
-None.  I will fix bugs, of course.  Otherwise we will see, if there will be a
-new version of the toml language that becomes relevant.
-
+None.  Except maybe fixing the [limitations](#limitations).  I will fix bugs,
+of course.  Otherwise we will see, if there will be a new version of the toml
+language that becomes relevant.
 
 
 ## Contributing

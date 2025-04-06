@@ -2,7 +2,7 @@
 
 ;; Author: Johannes Mueller <github@johannes-mueller.org>
 ;; URL: https://github.com/johannes-mueller/tomlparse.el
-;; Version: 0.1.0
+;; Version: 0.x.0
 ;; License: GPLv3
 ;; SPDX-License-Identifier: GPL-3.0-only
 ;; Package-Requires: ((emacs "29.1"))
@@ -20,8 +20,6 @@
 ;;
 ;; In order to use it, the tree sitter module must be compiled into Emacs and the toml
 ;; language grammar must be installed.
-
-;; To be documented
 
 ;;; Code:
 
@@ -129,17 +127,14 @@ The arguments ARGS are a list of keyword/argument pairs:
   (let* ((target (tomlparse--climb-tree (cadr (treesit-node-children node)) hash-table))
          (key (tomlparse--key-text (car target)))
          (target-hash-table (or (cdr target) hash-table))
-
          (value (tomlparse--table node)))
     (if-let* ((already-existing (gethash key target-hash-table)))
-        (progn
-;          (message "already-existing: %s" already-existing)
-          (if (and (hash-table-p already-existing)
-                   (or (cl-find-if #'hash-table-p (hash-table-values already-existing))
-                       (cl-find-if #'vectorp (hash-table-values already-existing))))
-             (maphash (lambda (key value) (puthash key value already-existing)) value)
-           (tomlparse--error (format "table `%s` already defined"
-                                     (treesit-node-text (cadr (treesit-node-children  tomlparse--current-node)))))))
+        (if (and (hash-table-p already-existing)
+                 (or (cl-find-if #'hash-table-p (hash-table-values already-existing))
+                     (cl-find-if #'vectorp (hash-table-values already-existing))))
+            (maphash (lambda (key value) (puthash key value already-existing)) value)
+          (tomlparse--error (format "table `%s` already defined"
+                                    (treesit-node-text (cadr (treesit-node-children  tomlparse--current-node))))))
       (puthash key value target-hash-table))))
 
 (defun tomlparse--table-array-element (node hash-table)
@@ -210,27 +205,21 @@ In case of an array of tables the last table of the array is returned."
     (pcase (treesit-node-type key-node)
       ("bare_key" node-text)
       ("quoted_key" (if (equal (treesit-node-type (cadr (treesit-node-children key-node))) "escape_sequence")
-                        (tomlparse--literal-string node-text)
+                        (tomlparse--string-literal node-text)
                       (substring node-text 1 -1))))))
 
-(defun tomlparse--literal-string (string)
-  ;(message "string literal: %s" string)
-  (json-parse-string
-   ;(tomlparse--escape-escape
-   (progn ;(message "%s" (tomlparse--capital-unicode-escapes string))
-          (tomlparse--capital-unicode-escapes string))))
-;)
+
+(defun tomlparse--string-literal (string)
+  "Parse the sting literal STRING from TOML data."
+  (json-parse-string (tomlparse--capital-unicode-escapes string)))
 
 (defun tomlparse--capital-unicode-escapes (string)
-  ;(message "unescaping %s" string)
+  "Unescape unicode sequences in STRING."
   (replace-regexp-in-string
    "\\\\U\\([0-9a-fA-F]\\{8\\}\\)"
    (lambda (match)
      (char-to-string (string-to-number (match-string 1 match) 16)))
    (replace-regexp-in-string "\\\\U0\\{4\\}\\([0-9a-fA-F]\\{4\\}\\)" "\\\\u\\1" string t) t))
-
-(defun tomlparse--escape-escape (string)
-  (replace-regexp-in-string "\\e" "\\\\u001b" string))
 
 (defun tomlparse--value (node)
   "Parse the pair value of NODE."
@@ -261,12 +250,11 @@ In case of an array of tables the last table of the array is returned."
          (match-string 1 value))
         ((eq (string-match "'\\(.*\\)'" value) 0)
          (match-string 1 value))
-        (t (tomlparse--literal-string value))))
+        (t (tomlparse--string-literal value))))
 
 (defun tomlparse--unmask-triple-quote-string (string)
   "Unmask t \"\"\"triple quoted string\"\"\" STRING."
-  ;(message "tripple quoted string: %s" string)
-  (tomlparse--literal-string
+  (tomlparse--string-literal
    (format "\"%s\""
            (string-replace
             "\t" "\\t"
