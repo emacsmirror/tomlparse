@@ -156,7 +156,7 @@ struct = { name = \"Baz Qux\", email = \"bazqux@example.com\", url = \"https://e
 
 
 (ert-deftest inline-table-line-break ()
-  (skip-unless nil)  "The tree sitter gramar does not do TOML 1.1"
+  (skip-when  "The tree sitter gramar does not do TOML 1.1")
   (with-temp-buffer
     (insert "
 # TOML 1.1 supports newlines in inline tables and trailing commas.
@@ -542,7 +542,7 @@ lt2 = 00:32:00.999999
 
 
 (ert-deftest local-time-no-seconds-iso8061 ()
-  (skip-unless nil)  ; tree sitter gramar does not accept this
+  (skip-when "tree sitter gramar does not accept this")
   (with-temp-buffer
     (insert "
 lt1 = 07:32
@@ -745,7 +745,7 @@ fruit.apple.taste = \"sweet\"
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest invalid-double-line ()
-  (skip-unless nil) ;  Treesitter does not catch this.
+  (skip-when "Treesitter does not catch this.")
   (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
     (with-temp-buffer
       (insert "first = \"Tom\" last = \"Preston-Werner\" # INVALID")
