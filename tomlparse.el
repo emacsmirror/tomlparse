@@ -137,9 +137,7 @@ The arguments ARGS are a list of keyword/argument pairs:
           (if (and (hash-table-p already-existing)
                    (or (cl-find-if #'hash-table-p (hash-table-values already-existing))
                        (cl-find-if #'vectorp (hash-table-values already-existing))))
-             (when-let* ((key (car (hash-table-keys value)))
-                         (value (car (hash-table-values value))))
-               (puthash key value already-existing))
+             (maphash (lambda (key value) (puthash key value already-existing)) value)
            (tomlparse--error (format "table `%s` already defined"
                                      (treesit-node-text (cadr (treesit-node-children  tomlparse--current-node)))))))
       (puthash key value target-hash-table))))
