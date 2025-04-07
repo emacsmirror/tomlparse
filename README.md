@@ -26,7 +26,7 @@ Tree-sitter.)
 
 ## Status
 
-The thing seems to be feature complete (see [Limitations](#limitations).
+The thing seems to be feature complete (see [Limitations](#limitations)).
 
 After some practice test I will propose it to MELPa.  Be aware that this has
 been written during three evenings after work and a couple of hours during the
