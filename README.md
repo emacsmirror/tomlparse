@@ -16,8 +16,8 @@ and `(json-parse-buffer)` but read toml rather than json.
 
 I am aware of toml.el aka [emacs-toml](https://github.com/gongo/emacs-toml) and
 I've been using it and I even have contributed to it.  However, the package is
-not feature complete, so it cannot parse all valid toml files.  The maintainer
-does not seem to be interested anymore.  Moreover, now that we have
+not feature complete, so it cannot parse all valid toml files and it seems to
+suffer from maintainer fatigue.  Moreover, now that we have
 [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) available in Emacs
 29+ we can write parsers way more easy with way less lines of code. (Actually
 the name "tomlparse.el" is technically not correct, as the parsing is done by
@@ -42,9 +42,12 @@ into your startup file.
 ``` elisp
 (use-package tomlparse
   :straight (tomlparse :type git :host github :repo "johannes-mueller/tomlparse.el"))
+
+(add-to-list 'treesit-language-source-alist '(toml "https://github.com/tree-sitter-grammars/tree-sitter-toml"))
 ```
 
-Eventually after some tests in real life I will propose it to MELPA.
+Then you can install the tree-sitter TOML gramar using
+`treesit-install-language-grammar`.
 
 
 ## Limitations
