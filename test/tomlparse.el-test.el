@@ -718,7 +718,7 @@ name = \"plantain\"
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
-(ert-deftest object-type-alist ()
+(ert-deftest object-type-alist-simple ()
   (with-temp-buffer
     (insert "
 fruit.apple.smooth = true
@@ -727,6 +727,13 @@ fruit.apple.taste = \"sweet\"
     (let ((expected '(("fruit" ("apple" ("taste" . "sweet") ("smooth" . t))))))
       (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
+(ert-deftest object-type-alist-array-of-table ()
+  (with-temp-buffer
+    (insert "
+authors = [{name = \"Johannes Mueller\", email = \"github@johannes-mueller.org\"}]
+")
+    (let ((expected '(("authors" . [(("email" . "github@johannes-mueller.org") ("name" . "Johannes Mueller"))]))))
+      (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
 (ert-deftest object-type-plist ()
   (with-temp-buffer
@@ -735,6 +742,15 @@ fruit.apple.smooth = true
 fruit.apple.taste = \"sweet\"
 ")
     (let ((expected '("fruit" ("apple" ("taste" "sweet" "smooth" t)))))
+      (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
+
+
+(ert-deftest object-type-plist-array-of-table ()
+  (with-temp-buffer
+    (insert "
+authors = [{name = \"Johannes Mueller\", email = \"github@johannes-mueller.org\"}]
+")
+    (let ((expected '("authors" [("email" "github@johannes-mueller.org" "name" "Johannes Mueller")])))
       (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
 
 

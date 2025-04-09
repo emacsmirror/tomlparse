@@ -289,28 +289,37 @@ In case of an array of tables the last table of the array is returned."
   (unless (member (treesit-node-type node) '("[" "]" ","))
     (tomlparse--value node)))
 
+(defun tomlparse--object-for-alist (object)
+  "Process OBJECT to put it into a result alist."
+  (pcase object
+    ((pred hash-table-p) (tomlparse--hash-table-to-alist object))
+    ((pred vectorp) (cl-map 'vector 'tomlparse--object-for-alist object))
+    (_ object)))
+
 (defun tomlparse--hash-table-to-alist (hash-table)
   "Recursively convert HASH-TABLE to a nested alist."
   (let (alist)
     (maphash (lambda (key value)
-               (let ((value (if (hash-table-p value)
-                                (tomlparse--hash-table-to-alist value)
-                              value)))
+               (let ((value (tomlparse--object-for-alist value)))
                  (setq alist (cons (cons key value) alist))))
              hash-table)
     alist))
+
+(defun tomlparse--object-for-plist (object)
+  "Process OBJECT to put it into a result plist."
+  (pcase object
+    ((pred hash-table-p) (tomlparse--hash-table-to-plist object))
+    ((pred vectorp) (cl-map 'vector 'tomlparse--object-for-plist object))
+    (_ object)))
 
 (defun tomlparse--hash-table-to-plist (hash-table)
   "Recursively convert HASH-TABLE to a nested plist."
   (let (plist)
     (maphash (lambda (key value)
-               (let ((value (if (hash-table-p value)
-                                (tomlparse--hash-table-to-plist value)
-                              value)))
+               (let ((value (tomlparse--object-for-plist value)))
                  (setq plist (cons key (cons value plist)))))
              hash-table)
     plist))
-
 
 (defun tomlparse--error (&optional msg)
   "Write an error message referencing the line of NODE and maybe MSG."
