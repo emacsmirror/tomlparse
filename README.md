@@ -122,16 +122,18 @@ Then you can install the tree-sitter TOML gramar using
 
 ## Limitations
 
+So far, the [TOML tree-sitter
+gramar](https://github.com/tree-sitter-grammars/tree-sitter-toml) only supports
+TOML 1.0.0. So all the things only allowed in TOML 1.1.x are not supported by
+this package.  They will be supported as soon as the tree-sitter grammar
+supports them.
+
 The read functions read all the example of the [toml
 spec](https://toml.io/en/v1.0.0) correctly.  There are a couple of valid test
 files in [toml-test](https://github.com/toml-lang/toml-test) that are no
-correctly read in or not read in at all.  This is due to shortcomings in the
-tree sitter grammar and issues with escape sequences in string literals of the
-TOML data.  The latter is especially relevant for Emacs versions < 30.1.
-
-The shortcomings in tree sitter grammar I will report in the hope they will be
-eventually fixed.  About the others I will see how relevant they are in
-practice.  Please let me know if you have some kind of stake in there.
+correctly read in or not read in at all.  These are either TOML 1.1.x features
+or issues with escape sequences in string literals of the TOML data.  The
+latter is especially relevant for Emacs versions < 30.1.
 
 
 ## Future plans

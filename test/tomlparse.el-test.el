@@ -542,7 +542,7 @@ lt2 = 00:32:00.999999
 
 
 (ert-deftest local-time-no-seconds-iso8061 ()
-  (skip-when "tree sitter gramar does not accept this")
+  (skip-when  "The tree sitter gramar does not do TOML 1.1")
   (with-temp-buffer
     (insert "
 lt1 = 07:32
