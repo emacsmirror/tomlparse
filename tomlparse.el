@@ -110,7 +110,7 @@ The arguments ARGS are a list of keyword/argument pairs:
           ("pair" (tomlparse--pair node root-hash-table))
           ("table" (tomlparse--subtable node root-hash-table))
           ("table_array_element" (tomlparse--table-array-element node root-hash-table))
-          ("ERROR" (tomlparse--error "parser reported error")))))
+          ("ERROR" (tomlparse--error "Parser reported an error")))))
     root-hash-table))
 
 (defun tomlparse--pair (node hash-table)
@@ -121,7 +121,7 @@ The arguments ARGS are a list of keyword/argument pairs:
          (key (tomlparse--key-text (car target)))
          (target-hash-table (or (cdr target) hash-table)))
     (when (gethash key target-hash-table)
-      (tomlparse--error (format "duplicate key `%s`" key)))
+      (tomlparse--error (format "Duplicate key `%s`" key)))
     (puthash key value target-hash-table)))
 
 (defun tomlparse--subtable (node hash-table)
@@ -135,7 +135,7 @@ The arguments ARGS are a list of keyword/argument pairs:
                  (or (cl-find-if #'hash-table-p (hash-table-values already-existing))
                      (cl-find-if #'vectorp (hash-table-values already-existing))))
             (maphash (lambda (key value) (puthash key value already-existing)) value)
-          (tomlparse--error (format "table `%s` already defined"
+          (tomlparse--error (format "Table `%s` already defined"
                                     (treesit-node-text (cadr (treesit-node-children  tomlparse--current-node))))))
       (puthash key value target-hash-table))))
 
@@ -157,11 +157,11 @@ If the result is not nil nor a already partially read table array, a
 duplication error is raised."
   (let ((candidate (gethash key hash-table)))
     (pcase candidate
-      ((pred hash-table-p) (tomlparse--error (format "table `%s` already defined" key)))
+      ((pred hash-table-p) (tomlparse--error (format "Table `%s` already defined" key)))
       ((pred vectorp) (if (member key tomlparse--seen-table-arrays)
                           candidate
-                        (tomlparse--error (format "duplicate key `%s`" key))))
-      ((pred identity)  (tomlparse--error (format "duplicate key `%s`" key)))
+                        (tomlparse--error (format "Duplicate key `%s`" key))))
+      ((pred identity)  (tomlparse--error (format "Duplicate key `%s`" key)))
       (_ candidate))))
 
 (defun tomlparse--climb-tree (key-node hash-table)
@@ -192,7 +192,7 @@ In case of an array of tables the last table of the array is returned."
       (_ (let ((duplicate-key
                 (treesit-node-text (car (treesit-node-children
                                          (car (treesit-node-children tomlparse--current-node)))))))
-           (tomlparse--error (format "duplicate key `%s`" duplicate-key)))))))
+           (tomlparse--error (format "Duplicate key `%s`" duplicate-key)))))))
 
 (defun tomlparse--hash-table-or-new-one (key hash-table)
   "Return the hash table for KEY of HASH-TABLE.  Create it if needed."

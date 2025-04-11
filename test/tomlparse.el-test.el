@@ -755,38 +755,38 @@ authors = [{name = \"Johannes Mueller\", email = \"github@johannes-mueller.org\"
 
 
 (ert-deftest inclomplete-pair-line-1 ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (Parser reported an error)") :occur 1))))
     (with-temp-buffer
       (insert "key = # INVALID")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest invalid-double-line ()
   (skip-when "Treesitter does not catch this.")
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (Parser reported an error)") :occur 1))))
     (with-temp-buffer
       (insert "first = \"Tom\" last = \"Preston-Werner\" # INVALID")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest missing-key ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (Parser reported an error)") :occur 1))))
     (with-temp-buffer
       (insert "= \"no key name\"  # INVALID")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest referencing-key ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (parser reported error)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 1 (Parser reported an error)") :occur 1))))
     (with-temp-buffer
       (insert "foo = bar")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest inclomplete-pair-after-valid ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 2 (parser reported error)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 2 (Parser reported an error)") :occur 1))))
     (with-temp-buffer
       (insert "key = 123\nbroken = # INVALID")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest conflicting-key-simple ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 4 (duplicate key `name`)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 4 (Duplicate key `name`)") :occur 1))))
     (with-temp-buffer
       (insert "
 # DO NOT DO THIS
@@ -796,7 +796,7 @@ name = \"Pradyun\"
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest conflicting-table-with-previous-key ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 3 (duplicate key `fruit.apple`)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 3 (Duplicate key `fruit.apple`)") :occur 1))))
     (with-temp-buffer
       (insert "
 fruit.apple = 1
@@ -805,7 +805,7 @@ fruit.apple.smooth = true
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest conflicting-table-array-with-previous-table ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (table `fruit` already defined)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (Table `fruit` already defined)") :occur 1))))
     (with-temp-buffer
       (insert "
 # INVALID TOML DOC
@@ -821,7 +821,7 @@ name = \"apple\"
 
 
 (ert-deftest conflicting-table-array-with-previous-pair ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 5 (duplicate key `fruits`)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 5 (Duplicate key `fruits`)") :occur 1))))
     (with-temp-buffer
       (insert "
 # INVALID TOML DOC
@@ -887,7 +887,7 @@ d = 4
 
 
 (ert-deftest table-defined-twice ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (table `fruit` already defined)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (Table `fruit` already defined)") :occur 1))))
     (with-temp-buffer
       (insert "
 # DO NOT DO THIS
@@ -900,7 +900,7 @@ orange = \"orange\"")
       (should-not (tomlparse-buffer)))))
 
 (ert-deftest super-table-first ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (table `fruit.apple` already defined)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (Table `fruit.apple` already defined)") :occur 1))))
     (with-temp-buffer
       (insert "
 # DO NOT DO THIS EITHER
@@ -914,7 +914,7 @@ texture = \"smooth\"")
 
 
 (ert-deftest conflicting-table-with-previous-array-of-tables ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 9 (table `fruits.varieties` already defined)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 9 (Table `fruits.varieties` already defined)") :occur 1))))
     (with-temp-buffer
       (insert "
 [[fruits]]
@@ -931,7 +931,7 @@ name = \"granny smith\"
 
 
 (ert-deftest conflicting-array-of-table-with-previous-table ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 5 (duplicate key `fruits`)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 5 (Duplicate key `fruits`)") :occur 1))))
     (with-temp-buffer
       (insert "
 # INVALID TOML DOC
@@ -947,7 +947,7 @@ fruits = []
   (with-temp-buffer
     (insert "[[fruits]]")
     (should (tomlparse-buffer)))
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 5 (duplicate key `fruits`)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 5 (Duplicate key `fruits`)") :occur 1))))
     (with-temp-buffer
       (insert "
 # INVALID TOML DOC
@@ -959,7 +959,7 @@ fruits = []
 
 
 (ert-deftest list-of-known-table-arrays-is-reset-after-failure ()
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (parser reported error)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 7 (Parser reported an error)") :occur 1))))
     (with-temp-buffer
       (insert "
 # INVALID TOML DOC
@@ -970,7 +970,7 @@ apple = \"sweet\"
 foo = #error
 ")
       (should-not (tomlparse-buffer))))
-  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 4 (duplicate key `fruits`)") :occur 1))))
+  (mocker-let ((user-error (msg) ((:input '("Broken toml data: line 4 (Duplicate key `fruits`)") :occur 1))))
     (with-temp-buffer
       (insert "
 fruits = []
