@@ -111,13 +111,14 @@ into your startup file.
 
 ``` elisp
 (use-package tomlparse
-  :straight (tomlparse :type git :host github :repo "johannes-mueller/tomlparse.el"))
-
-(add-to-list 'treesit-language-source-alist '(toml "https://github.com/tree-sitter-grammars/tree-sitter-toml"))
+  :straight (tomlparse :type git :host github :repo "johannes-mueller/tomlparse.el")
+  :init
+  (add-to-list 'treesit-language-source-alist '(toml "https://github.com/tree-sitter-grammars/tree-sitter-toml"))
+  (unless (treesit-language-available-p 'toml)
+    (treesit-install-language-grammar 'toml)))
 ```
 
-Then you can install the tree-sitter TOML gramar using
-`treesit-install-language-grammar`.
+This also installs the TOML language grammar if it is not already installed.
 
 
 ## Limitations
