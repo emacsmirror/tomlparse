@@ -48,12 +48,9 @@ jobs:
 
       - name: Install tree-sitter toml gramar
         run: |
-          ls
           emacs -Q -batch --eval "(progn (require 'treesit) (add-to-list 'treesit-language-source-alist '(toml \"https://github.com/tree-sitter/tree-sitter-toml\")) (treesit-install-language-grammar 'toml))"
       - name: Install dependencies
         run: '$HOME/.cask/bin/cask install'
 
       - name: Run toml-test tests
-        run: |
-          ls toml-test
-          test/tomltest.sh
+        run: test/tomltest.sh
