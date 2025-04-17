@@ -49,6 +49,11 @@
 (defvar tomlparse--datetime-object nil
   "Internal variable store the object to be used for datetime objects.")
 
+(defconst tomlparse--mangle-function-alist '((alist . tomlparse--hash-table-to-alist)
+                                             (plist . tomlparse--hash-table-to-plist)
+                                             (nil . identity))
+  "Functions to mangle the resulting hash table according to the :object-type arg.")
+
 (defun tomlparse-file (filename &rest args)
   "Read a toml file FILENAME and return a hash table with its contents.
 
@@ -97,34 +102,33 @@ The arguments ARGS are a list of keyword/argument pairs:
 :datetime-as SYM -- If SYM equals `string'.
   `datetime' fields are passed through as string.  Otherwise they are
   passed as iso8601 datetime and put into a list."
-  (setq tomlparse--false-object (cadr (or (plist-member args :false-object) '(t :false))))
-  (setq tomlparse--datetime-object (plist-get args :datetime-as))
-  (let ((result-hash-table (let ((root-node (treesit-parse-string string 'toml)))
-                             (setq tomlparse--seen-table-arrays nil)
-                             (tomlparse--table root-node))))
-    (pcase (plist-get args :object-type)
-      ('alist (tomlparse--hash-table-to-alist result-hash-table))
-      ('plist (tomlparse--hash-table-to-plist result-hash-table))
-      (_ result-hash-table))))
+  (funcall (alist-get (plist-get args :object-type) tomlparse--mangle-function-alist)
+           (tomlparse--parse-string string args)))
+
+(defun tomlparse--parse-string (string args)
+  "Do the actual parsing of STRING with keyword/argument pairs ARGS."
+  (let ((tomlparse--false-object (cadr (or (plist-member args :false-object) '(t :false))))
+        (tomlparse--datetime-object (plist-get args :datetime-as))
+        (tomlparse--seen-table-arrays nil))
+    (tomlparse--table (treesit-parse-string string 'toml))))
 
 (defun tomlparse--table (root-node)
   "Analyze the toml table of the ROOT-NODE and return a hash table of its contents."
   (let ((root-hash-table (make-hash-table :test 'equal)))
-    (dolist (node (treesit-node-children root-node))
-      (let ((tomlparse--current-node node))
-        (pcase (treesit-node-type node)
-          ("pair" (tomlparse--pair node root-hash-table))
-          ("table" (tomlparse--subtable node root-hash-table))
-          ("table_array_element" (tomlparse--table-array-element node root-hash-table))
-          ("ERROR" (tomlparse--error "Parser reported an error")))))
+    (dolist (tomlparse--current-node (treesit-node-children root-node))
+      (pcase (treesit-node-type tomlparse--current-node)
+        ("pair" (tomlparse--pair tomlparse--current-node root-hash-table))
+        ("table" (tomlparse--subtable tomlparse--current-node root-hash-table))
+        ("table_array_element" (tomlparse--table-array-element tomlparse--current-node root-hash-table))
+        ("ERROR" (tomlparse--error "Parser reported an error"))))
     root-hash-table))
 
 (defun tomlparse--pair (node hash-table)
   "Analyze the toml pair covered by NODE and put it into HASH-TABLE."
   (let* ((target (tomlparse--climb-tree (car (treesit-node-children node)) hash-table))
          (key (tomlparse--key-text (car target)))
-         (value (tomlparse--value (caddr (treesit-node-children node))))
-         (target-hash-table (or (cdr target) hash-table)))
+         (target-hash-table (cdr target))
+         (value (tomlparse--value (caddr (treesit-node-children node)))))
     (when (gethash key target-hash-table)
       (tomlparse--error (format "Duplicate key `%s`" key)))
     (puthash key value target-hash-table)))
@@ -133,8 +137,8 @@ The arguments ARGS are a list of keyword/argument pairs:
   "Analyze the toml subtable covered by NODE and put it into HASH-TABLE."
   (let* ((target (tomlparse--climb-tree (cadr (treesit-node-children node)) hash-table))
          (key (tomlparse--key-text (car target)))
-         (value (tomlparse--table node))
-         (target-hash-table (or (cdr target) hash-table)))
+         (target-hash-table (cdr target))
+         (value (tomlparse--table node)))
     (if-let* ((already-existing (gethash key target-hash-table)))
         (if (tomlparse--table-open-for-new-entries-p already-existing)
             (maphash (lambda (key value) (puthash key value already-existing)) value)
@@ -160,8 +164,8 @@ If none of the two is true, we have simply a duplicated key."
   "Analyze the toml table array element covered by NODE and put it into HASH-TABLE."
   (let* ((target (tomlparse--climb-tree (cadr (treesit-node-children node)) hash-table))
          (key (tomlparse--key-text (car target)))
+         (target-hash-table (cdr target))
          (value  (tomlparse--table node))
-         (target-hash-table (or (cdr target) hash-table))
          (old-array (or (tomlparse--table-array key target-hash-table) []))
          (new-array (vconcat old-array `[,value])))
     (add-to-list 'tomlparse--seen-table-arrays key)
@@ -187,15 +191,12 @@ duplication error is raised."
 The leaf hash table is the hash table in which the value of the pair is
 to be put.  It is created as needed and put into HASH-TABLE appropriately."
   (pcase (treesit-node-type key-node)
-    ((or "bare_key" "quoted_key")
-     (if (equal (treesit-node-type (treesit-node-parent key-node)) "dotted_key")
-         (cons key-node hash-table)
-       (cons key-node nil)))
     ("dotted_key" (let* ((branch (tomlparse--climb-tree (car (treesit-node-children key-node)) hash-table))
                          (branch-key (tomlparse--key-text (car branch)))
                          (branch-hash-table (tomlparse--hash-table-or-new-one branch-key (cdr branch)))
                          (leaf-key-node (caddr (treesit-node-children key-node))))
-                    (cons leaf-key-node branch-hash-table)))))
+                    (cons leaf-key-node branch-hash-table)))
+    (_ (cons key-node hash-table))))
 
 (defun tomlparse--hash-table-or-new-one (key hash-table)
   "Return the hash table for KEY of HASH-TABLE.  Create it if needed."
