@@ -1,3 +1,4 @@
+;;; tomltest.el --- use toml-test cases for tomlparse.el  -*- lexical-binding: t; -*-
 
 (require 'tomlparse)
 (require 'ert)
