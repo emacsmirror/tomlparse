@@ -94,10 +94,9 @@ The arguments ARGS are a list of keyword/argument pairs:
   passed as iso8601 datetime and put into a list."
   (setq tomlparse--false-object (cadr (or (plist-member args :false-object) '(t :false))))
   (setq tomlparse--datetime-object (plist-get args :datetime-as))
-  (let ((result-hash-table (catch 'result
-                             (let ((root-node (treesit-parse-string string 'toml)))
-                               (setq tomlparse--seen-table-arrays nil)
-                               (throw 'result (tomlparse--table root-node))))))
+  (let ((result-hash-table (let ((root-node (treesit-parse-string string 'toml)))
+                             (setq tomlparse--seen-table-arrays nil)
+                             (tomlparse--table root-node))))
     (pcase (plist-get args :object-type)
       ('alist (tomlparse--hash-table-to-alist result-hash-table))
       ('plist (tomlparse--hash-table-to-plist result-hash-table))
@@ -341,8 +340,7 @@ because that's the one we will add entries to."
   "Write an error message referencing the line of NODE and maybe MSG."
   (user-error (concat
                (format "Broken toml data: line %s" (line-number-at-pos (treesit-node-start tomlparse--current-node)))
-               (when msg (format " (%s)" msg))))
-  (throw 'result nil))
+               (when msg (format " (%s)" msg)))))
 
 (provide 'tomlparse)
 
