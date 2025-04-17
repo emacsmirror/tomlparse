@@ -396,21 +396,27 @@ flt7 = 6.626e-34
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
-;; (ert-deftest nan-inf ()
-;;   (with-temp-buffer
-;;     (insert "
-;; # infinity
-;; sf1 = inf  # positive infinity
-;; sf2 = +inf # positive infinity
-;; sf3 = -inf # negative infinity
+(ert-deftest spec-inf ()
+  (with-temp-buffer
+    (insert "
+# infinity
+sf1 = inf  # positive infinity
+sf2 = +inf # positive infinity
+sf3 = -inf # negative infinity
+")
+    (let ((expected '("sf3" -1.0e+INF "sf2" 1.0e+INF "sf1" 1.0e+INF)))
+      (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
 
-;; # not a number
-;; sf4 = nan  # actual sNaN/qNaN encoding is implementation-specific
-;; sf5 = +nan # same as `nan`
-;; sf6 = -nan # valid, actual encoding is implementation-specific
-;; ")
-;;     (let ((expected (external-toml-parser)))
-;;       (should (hash-equal (tomlparse-buffer) expected)))))
+(ert-deftest spec-nan ()
+  (with-temp-buffer
+    (insert "
+# not a number
+sf4 = nan  # actual sNaN/qNaN encoding is implementation-specific
+sf5 = +nan # same as `nan`
+sf6 = -nan # valid, actual encoding is implementation-specific
+")
+    (let ((expected '("sf6" -0.0e+NaN "sf5" 0.0e+NaN "sf4" 0.0e+NaN)))
+      (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
 
 
 (ert-deftest booleans-false ()

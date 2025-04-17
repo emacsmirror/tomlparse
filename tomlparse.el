@@ -292,8 +292,10 @@ because that's the one we will add entries to."
   "Parse a number from the value string VALUE."
   (pcase value
     ("inf" 1.0e+INF)
+    ("+inf" 1.0e+INF)
     ("-inf" -1.0e+INF)
     ("nan" 0.0e+NaN)
+    ("+nan" 0.0e+NaN)
     ("-nan" -0.0e+NaN)
     (_(let ((base 10))
        (when (string-match "0\\([xob]\\)\\(.*\\)" value)

@@ -23,7 +23,7 @@
     ((pred (lambda (v) (and (numberp v) (equal (number-to-string v) "1.0e+INF")))) (format-value "float" "inf"))
     ((pred (lambda (v) (and (numberp v) (equal (number-to-string v) "-1.0e+INF")))) (format-value "float" "-inf"))
     ((pred (lambda (v) (and (numberp v) (equal (number-to-string v) "0.0e+NaN")))) (format-value "float" "nan"))
-    ((pred (lambda (v) (and (numberp v) (equal (number-to-string v) "-0.0e+NaN")))) (format-value "float" "-nan"))
+    ((pred (lambda (v) (and (numberp v) (equal (number-to-string v) "-0.0e+NaN")))) (format-value "float" "nan"))
     ((pred vectorp) (format "[%s]" (string-join (walk-vector value) ",")))
     ((pred numberp) (format-value "float" value))
     ((pred listp) (format-datetime value))
@@ -67,7 +67,10 @@
      (t (format-value "datetime" (format "%04d-%02d-%02dT%02d:%02d:%02d%s%s" Y M D h m s ms zone))))))
 
 (defun format-value (type value)
-  (format "{\"type\":\"%s\",\"value\":\"%s\"}" type value))
+;  (message "type: %s value: `%s'" type value)
+  (format "{\"type\":\"%s\",\"value\":\"%s\"}" type (if (and (equal type "float") (not (member value '("inf" "-inf" "nan" "-nan"))))
+                                                        (number-to-string value)
+                                                      value)))
 
 (defun toml2json (file)
   (princ (hashtable-to-test-json (tomlparse-file file))))
