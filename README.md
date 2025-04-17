@@ -6,10 +6,10 @@ A straight forward toml parser fore elisp
 ## Synopsis
 
 This package aims to provide a straight forward feature complete and stable
-parser for the wide spread toml config language.  The idea is to provide three
+parser for the wide spread TOML config language.  The idea is to provide three
 elisp functions `(tomlparse-file)`, `(tomlparse-buffer)` and
 `(tomlparse-string)` functions, that behave similar to `(json-parse-string)`
-and `(json-parse-buffer)` but read toml rather than json.
+and `(json-parse-buffer)` but read TOML rather than JSON.
 
 
 ## Example
@@ -82,11 +82,11 @@ ELISP> (tomlparse-file "pyproject.toml" :object-type 'plist)
   "tomlparse-demo"))
 ```
 
-## Why a new toml parser – isn't there toml.el?
+## Why a new TOML parser – isn't there toml.el?
 
 I am aware of toml.el aka [emacs-toml](https://github.com/gongo/emacs-toml) and
 I've been using it and I even have contributed to it.  However, the package is
-not feature complete, so it cannot parse all valid toml files and it seems to
+not feature complete, so it cannot parse all valid TOML files and it seems to
 suffer from maintainer fatigue.  Moreover, now that we have
 [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) available in Emacs
 29+ we can write parsers way more easy with way less lines of code. (Actually
@@ -126,10 +126,10 @@ This also installs the TOML language grammar if it is not already installed.
 So far, the [TOML tree-sitter
 gramar](https://github.com/tree-sitter-grammars/tree-sitter-toml) only supports
 TOML 1.0.0. So all the things only allowed in TOML 1.1.x are not supported by
-this package.  They will be supported as soon as the tree-sitter grammar
+this package.  They will be supported as soon as the Tree-sitter grammar
 supports them.
 
-The read functions read all the example of the [toml
+The read functions read all the example of the [TOML
 spec](https://toml.io/en/v1.0.0) correctly.  There are a couple of valid test
 files in [toml-test](https://github.com/toml-lang/toml-test) that are no
 correctly read in or not read in at all.  These are either TOML 1.1.x features
@@ -140,7 +140,7 @@ latter is especially relevant for Emacs versions < 30.1.
 ## Future plans
 
 None.  Except maybe fixing the [limitations](#limitations).  I will fix bugs,
-of course.  Otherwise we will see, if there will be a new version of the toml
+of course.  Otherwise we will see, if there will be a new version of the TOML
 language that becomes relevant.
 
 
