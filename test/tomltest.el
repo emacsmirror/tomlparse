@@ -35,9 +35,7 @@
   (seq-map #'mangle value))
 
 (defun format-datetime (value)
-  ;(message "datetime %s" value)
-
-
+  ; (message "datetime %s" value)
   (let* ((Y (decoded-time-year value))
         (M (decoded-time-month value))
         (D (decoded-time-day value))
@@ -54,7 +52,7 @@
                          (format-time-string "%H:%M" (abs zone-secs) t))))))
 
     (when (and s (listp s))
-      (setq ms (format ".%d" (- (car s) (* (/ (car s) (cdr s)) (cdr s))  )))
+      (setq ms (format ".%d" (/ (* 1000 (- (car s) (* (/ (car s) (cdr s)) (cdr s))  )) (cdr s))))
       (setq s (/ (car s) (cdr s))))
 
                                   ;      (message "%s %s converted %02.0f%s" s ms s ms)
