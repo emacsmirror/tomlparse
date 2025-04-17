@@ -396,6 +396,27 @@ flt7 = 6.626e-34
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
+(ert-deftest zeros ()
+  (with-temp-buffer
+    (insert "
+zero = 0.0
+signed-pos = +0.0
+signed-neg = -0.0
+exponent = 0e0
+exponent-two-0 = 0e00
+exponent-signed-pos = +0e0
+exponent-signed-neg = -0e0
+")
+    (let ((expected (nreverse'
+                     (("zero" . 0.0)
+                      ("signed-pos" . 0.0)
+                      ("signed-neg" . -0.0)
+                      ("exponent" . 0.0)
+                      ("exponent-two-0" . 0.0)
+                      ("exponent-signed-pos" . 0.0)
+                      ("exponent-signed-neg" . -0.0)))))
+      (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
+
 (ert-deftest spec-inf ()
   (with-temp-buffer
     (insert "
