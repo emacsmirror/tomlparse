@@ -1,0 +1,59 @@
+name: toml-test
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  push:
+    paths-ignore:
+      - '**.md'
+    branches:
+      - main
+      - ci-debug
+
+jobs:
+  toml-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        emacs_version:
+          - 30.1
+          - 'release-snapshot'
+          - 'snapshot'
+        include:
+          - emacs_version: 'snapshot'
+            allow_failure: true
+          - emacs_version: 'release-snapshot'
+            allow_failure: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout toml test
+        uses: actions/checkout@v4
+        with:
+          repository: toml-lang/toml-test
+          path: toml-test
+      - uses: purcell/setup-emacs@master
+        with:
+          version: ${{ matrix.emacs_version }}
+
+      - uses: conao3/setup-cask@master
+        with:
+          version: 'snapshot'
+
+      - name: install toml2json
+        uses: baptiste0928/cargo-install@v3.3.0
+        with:
+          crate: toml2json
+
+      - name: Install tree-sitter toml gramar
+        run: |
+          ls
+          emacs -Q -batch --eval "(progn (require 'treesit) (add-to-list 'treesit-language-source-alist '(toml \"https://github.com/tree-sitter/tree-sitter-toml\")) (treesit-install-language-grammar 'toml))"
+      - name: Install dependencies
+        run: '$HOME/.cask/bin/cask install'
+
+      - name: Run toml-test tests
+        run: |
+          ls toml-test
+          test/tomltest.sh
