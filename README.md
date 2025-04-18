@@ -50,14 +50,25 @@ access its items.
 
 ```
 *** Welcome to IELM ***  Type (describe-mode) or press C-h m for help.
-ELISP> (setq projectfile.toml-data (tomlparse-file "pyproject.toml"))
-#<hash-table equal 2/6 0x1e60acea9062 ...>
-
-ELISP> (gethash "name" (gethash "project" projectfile.toml-data))
-"tomlparse-demo"
-
-ELISP> (gethash "dependencies" (gethash "project" projectfile.toml-data))
-["pandas>=2.2.3"]
+ELISP> (tomlparse-file "pyproject.toml")
+#<hash-table equal 2/6 0x1360d8c42522
+(("project" . #<hash-table equal 8/24 0x1360d8c41e3c
+  (("name" . "tomlparse-demo") ("version" . "0.1.0")
+   ("description" . "This is just to demonstrate tomlparse.el")
+   ("readme" . "README.md")
+   ("authors" . [#<hash-table equal 2/6 0x1360d8dcbb3f
+			      (("name" . "Johannes Mueller")
+			       ("email"
+				. "github@johannes-mueller.org"))
+			      >])
+   ("requires-python" . ">=3.13.2")
+   ("dependencies" . ["pandas>=2.2.3"])
+   ("optional-dependencies" . #<hash-table equal 1/6 0x1360d9f91590
+    (("jupyter" . ["jupyter>=1.1.1"]))>))
+  >)
+ ("dependency-groups" . #<hash-table equal 1/6 0x1360d99d52f8
+  (("dev" . ["pytest>=8.3.5"]))>))
+>
 ```
 
 If you prefer you can also read the contents into an `alist` or a `plist`.
@@ -88,13 +99,13 @@ ELISP> (tomlparse-file "pyproject.toml" :object-type 'plist)
 
 ## Why a new TOML parser – isn't there toml.el?
 
-I am aware of toml.el aka [emacs-toml](https://github.com/gongo/emacs-toml) and
+I am aware of toml.el aka [emacs-toml](https://github.com/gongo/emacs-toml).
 I've been using it and I even have contributed to it.  However, the package is
 not feature complete, so it cannot parse all valid TOML files and it seems to
 suffer from maintainer fatigue.  Moreover, now that we have
 [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) available in Emacs
-29+ we can write parsers way more easy with way less lines of code. (Actually
-the name "tomlparse.el" is technically not correct, as the parsing is done by
+29+ we can write parsers way more easily with less lines of code. (Actually the
+name "tomlparse.el" is technically not correct, as the parsing is done by
 Tree-sitter.)
 
 
@@ -119,7 +130,8 @@ into your startup file.
 (use-package tomlparse
   :straight (tomlparse :type git :host github :repo "johannes-mueller/tomlparse.el")
   :init
-  (add-to-list 'treesit-language-source-alist '(toml "https://github.com/tree-sitter-grammars/tree-sitter-toml"))
+  (add-to-list 'treesit-language-source-alist
+               '(toml "https://github.com/tree-sitter-grammars/tree-sitter-toml"))
   (unless (treesit-language-available-p 'toml)
     (treesit-install-language-grammar 'toml)))
 ```
