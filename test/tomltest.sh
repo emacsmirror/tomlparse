@@ -10,11 +10,6 @@ test_toml-1.0 () {
     tmpdir=$(mktemp -d)
     while read -r file
     do
-	if [ "$file" = "valid/string/multiline.toml" ]
-	then
-	   echo skipping "$file"
-	   continue
-	fi
 	echo -n testing "$file"
 	compare_toml_json toml-test/tests/${file} || ((failure++))
 	echo " ✔"

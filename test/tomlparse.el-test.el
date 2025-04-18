@@ -229,19 +229,57 @@ trailing-comma-2 = { c = 1, }
       (should (hash-equal (tomlparse-buffer) expected)))))
 
 
-(ert-deftest string-one-line-multi-lined ()
+(ert-deftest string-toml-test-multiline-no-trailing-ws ()
   (with-temp-buffer
     (insert "
-str1 = \"The quick brown fox jumps over the lazy dog.\"
-str2 = \"\"\"
+equivalent_one = \"The quick brown fox jumps over the lazy dog.\"
+equivalent_two = \"\"\"
 The quick brown \\
 
 
   fox jumps over \\
-    the lazy dog.\"\"\"")
-    (let ((expected (external-toml-parser)))
-      (should (hash-equal (tomlparse-buffer) expected)))))
+    the lazy dog.\"\"\"
 
+equivalent_three = \"\"\"\\
+       The quick brown \\
+       fox jumps over \\
+       the lazy dog.\\
+       \"\"\"
+
+escape-bs-1 = \"\"\"a \\\\
+b\"\"\"
+
+escape-bs-2 = \"\"\"c \\\\\\
+d\"\"\"
+
+escape-bs-3 = \"\"\"e \\\\\\\\
+  f\"\"\"
+
+no-space = \"\"\"a\\
+    b\"\"\"
+
+# Has tab character.
+keep-ws-before = \"\"\"a   	\\
+   b\"\"\"
+
+")
+    (let ((expected (nreverse
+                     '(("equivalent_one" . "The quick brown fox jumps over the lazy dog.")
+                       ("equivalent_two" . "The quick brown fox jumps over the lazy dog.")
+                       ("equivalent_three" . "The quick brown fox jumps over the lazy dog.")
+                       ("escape-bs-1" . "a \\\nb")
+                       ("escape-bs-2" . "c \\d")
+                       ("escape-bs-3" . "e \\\\\n  f")
+                       ("no-space" . "ab")
+                       ("keep-ws-before" . "a   \tb")
+                       ))))
+      (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
+
+(ert-deftest string-toml-test-multiline-whitespace-after-bs ()
+  (with-temp-buffer
+    (insert-file-contents "test/whitespace-after-bs.toml")
+    (let ((expected (nreverse '(("whitespace-after-bs" . "The quick brown fox jumps over the lazy dog.")))))
+      (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
 (ert-deftest string-multi-lined-tab ()
   (with-temp-buffer

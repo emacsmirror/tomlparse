@@ -267,8 +267,8 @@ because that's the one we will add entries to."
 (defun tomlparse--string (value)
   "Parse the string and un-escape in VALUE."
   (cond ((eq (string-match "\"\"\"\n*\\(\\(.\\|\n\\)*\\)\"\"\"" value) 0)
-         (tomlparse--unmask-triple-quote-string
-          (replace-regexp-in-string "\\\\[ \n\t]+" "" (match-string 1 value))))
+         (let ((string (match-string 1 value)))
+           (tomlparse--unmask-triple-quote-string string)))
         ((eq (string-match "'''\n*\\(\\(.\\|\n\\)*\\)'''" value) 0)
          (match-string 1 value))
         ((eq (string-match "'\\(.*\\)'" value) 0)
@@ -283,10 +283,21 @@ because that's the one we will add entries to."
             "\t" "\\t"
             (string-replace
              "\n" "\\n"
-             (string-replace
-              "\"" "\\\""
+             (tomlparse--remove-umasked-line-breaks
               (string-replace
-               "\\\"" "\"" string)))))))
+               "\"" "\\\""
+               (string-replace
+                "\\\"" "\"" string))))))))
+
+(defconst tomlparse--line-break-regexp "^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)\\\\[ \t]*\n[ \t\n]*")
+
+(defun tomlparse--remove-umasked-line-breaks (string)
+  "Remove all unmasked line breaks in STRING."
+  (while (string-match tomlparse--line-break-regexp string)
+    (setq string
+          (replace-match (concat (match-string 1 string) (match-string 2 string) (match-string 2 string))
+                         'fixedcase nil string)))
+  string)
 
 (defun tomlparse--string-to-number (value)
   "Parse a number from the value string VALUE."
