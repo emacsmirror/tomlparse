@@ -1,3 +1,7 @@
+[![toml-test](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/toml-test.yaml/badge.svg)](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/toml-test.yaml)
+[![Unit
+tests](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/unit-tests.yml)
+[![melpazoid](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/melpazoid.yml/badge.svg)](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/melpazoid.yml)
 # tomlparse.el
 
 A straight forward toml parser fore elisp
@@ -98,9 +102,11 @@ Tree-sitter.)
 
 The thing seems to be feature complete (see [Limitations](#limitations)).
 
-After some practice test I will propose it to MELPa.  Be aware that this has
-been written during three evenings after work and a couple of hours during the
-following weekend..  So there can be issues.  Please report them.
+The read functions read all the example of the [TOML
+spec](https://toml.io/en/v1.0.0) correctly.  Furthermore, all valid test files
+for TOML-1.0.0 in [toml-test](https://github.com/toml-lang/toml-test) are
+correctly read in.  There are some issues with string escaping for emacs<30.1,
+though.
 
 
 ## Installation
@@ -129,12 +135,10 @@ TOML 1.0.0. So all the things only allowed in TOML 1.1.x are not supported by
 this package.  They will be supported as soon as the Tree-sitter grammar
 supports them.
 
-The read functions read all the example of the [TOML
-spec](https://toml.io/en/v1.0.0) correctly.  There are a couple of valid test
-files in [toml-test](https://github.com/toml-lang/toml-test) that are no
-correctly read in or not read in at all.  These are either TOML 1.1.x features
-or issues with escape sequences in string literals of the TOML data.  The
-latter is especially relevant for Emacs versions < 30.1.
+In principle the package works with all Emacs versions that have Tree-sitter
+built in.  There are however, issues with string escaping in Emacs<30.1, due to
+some changes in the function `json-parse-string`.  As long as you don't have
+strings with escape sequences in them, also Emacs=29.1 is fine.
 
 
 ## Future plans
