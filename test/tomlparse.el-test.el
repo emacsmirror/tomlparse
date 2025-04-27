@@ -264,21 +264,21 @@ keep-ws-before = \"\"\"a   	\\
 
 ")
     (let ((expected (nreverse
-                     '(("equivalent_one" . "The quick brown fox jumps over the lazy dog.")
-                       ("equivalent_two" . "The quick brown fox jumps over the lazy dog.")
-                       ("equivalent_three" . "The quick brown fox jumps over the lazy dog.")
-                       ("escape-bs-1" . "a \\\nb")
-                       ("escape-bs-2" . "c \\d")
-                       ("escape-bs-3" . "e \\\\\n  f")
-                       ("no-space" . "ab")
-                       ("keep-ws-before" . "a   \tb")
+                     '((equivalent_one . "The quick brown fox jumps over the lazy dog.")
+                       (equivalent_two . "The quick brown fox jumps over the lazy dog.")
+                       (equivalent_three . "The quick brown fox jumps over the lazy dog.")
+                       (escape-bs-1 . "a \\\nb")
+                       (escape-bs-2 . "c \\d")
+                       (escape-bs-3 . "e \\\\\n  f")
+                       (no-space . "ab")
+                       (keep-ws-before . "a   \tb")
                        ))))
       (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
 (ert-deftest string-toml-test-multiline-whitespace-after-bs ()
   (with-temp-buffer
     (insert-file-contents "test/whitespace-after-bs.toml")
-    (let ((expected (nreverse '(("whitespace-after-bs" . "The quick brown fox jumps over the lazy dog.")))))
+    (let ((expected (nreverse '((whitespace-after-bs . "The quick brown fox jumps over the lazy dog.")))))
       (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
 (ert-deftest string-multi-lined-tab ()
@@ -446,13 +446,13 @@ exponent-signed-pos = +0e0
 exponent-signed-neg = -0e0
 ")
     (let ((expected (nreverse'
-                     (("zero" . 0.0)
-                      ("signed-pos" . 0.0)
-                      ("signed-neg" . -0.0)
-                      ("exponent" . 0.0)
-                      ("exponent-two-0" . 0.0)
-                      ("exponent-signed-pos" . 0.0)
-                      ("exponent-signed-neg" . -0.0)))))
+                     ((zero . 0.0)
+                      (signed-pos . 0.0)
+                      (signed-neg . -0.0)
+                      (exponent . 0.0)
+                      (exponent-two-0 . 0.0)
+                      (exponent-signed-pos . 0.0)
+                      (exponent-signed-neg . -0.0)))))
       (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
 (ert-deftest spec-inf ()
@@ -463,7 +463,7 @@ sf1 = inf  # positive infinity
 sf2 = +inf # positive infinity
 sf3 = -inf # negative infinity
 ")
-    (let ((expected '("sf3" -1.0e+INF "sf2" 1.0e+INF "sf1" 1.0e+INF)))
+    (let ((expected '(sf3 -1.0e+INF sf2 1.0e+INF sf1 1.0e+INF)))
       (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
 
 (ert-deftest spec-nan ()
@@ -474,7 +474,7 @@ sf4 = nan  # actual sNaN/qNaN encoding is implementation-specific
 sf5 = +nan # same as `nan`
 sf6 = -nan # valid, actual encoding is implementation-specific
 ")
-    (let ((expected '("sf6" -0.0e+NaN "sf5" 0.0e+NaN "sf4" 0.0e+NaN)))
+    (let ((expected '(sf6 -0.0e+NaN sf5 0.0e+NaN sf4 0.0e+NaN)))
       (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
 
 
@@ -789,7 +789,7 @@ name = \"plantain\"
 fruit.apple.smooth = true
 fruit.apple.taste = \"sweet\"
 ")
-    (let ((expected '(("fruit" ("apple" ("taste" . "sweet") ("smooth" . t))))))
+    (let ((expected '((fruit (apple (taste . "sweet") (smooth . t))))))
       (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
 (ert-deftest object-type-alist-array-of-table ()
@@ -797,7 +797,7 @@ fruit.apple.taste = \"sweet\"
     (insert "
 authors = [{name = \"Johannes Mueller\", email = \"github@johannes-mueller.org\"}]
 ")
-    (let ((expected '(("authors" . [(("email" . "github@johannes-mueller.org") ("name" . "Johannes Mueller"))]))))
+    (let ((expected '((authors . [((email . "github@johannes-mueller.org") (name . "Johannes Mueller"))]))))
       (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
 (ert-deftest object-type-plist ()
@@ -806,7 +806,7 @@ authors = [{name = \"Johannes Mueller\", email = \"github@johannes-mueller.org\"
 fruit.apple.smooth = true
 fruit.apple.taste = \"sweet\"
 ")
-    (let ((expected '("fruit" ("apple" ("taste" "sweet" "smooth" t)))))
+    (let ((expected '(fruit (apple (taste "sweet" smooth t)))))
       (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
 
 
@@ -815,7 +815,7 @@ fruit.apple.taste = \"sweet\"
     (insert "
 authors = [{name = \"Johannes Mueller\", email = \"github@johannes-mueller.org\"}]
 ")
-    (let ((expected '("authors" [("email" "github@johannes-mueller.org" "name" "Johannes Mueller")])))
+    (let ((expected '(authors [(email "github@johannes-mueller.org" name "Johannes Mueller")])))
       (should (equal (tomlparse-buffer :object-type 'plist) expected)))))
 
 
