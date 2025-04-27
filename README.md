@@ -75,26 +75,32 @@ If you prefer you can also read the contents into an `alist` or a `plist`.
 
 ```
 ELISP> (tomlparse-file "pyproject.toml" :object-type 'alist)
-(("dependency-groups" ("dev" . ["pytest>=8.3.5"]))
- ("project" ("optional-dependencies" ("jupyter" . ["jupyter>=1.1.1"]))
-  ("dependencies" . ["pandas>=2.2.3"])
-  ("requires-python" . ">=3.13.2")
-  ("authors"
-   . [(("email" . "github@johannes-mueller.org")
-       ("name" . "Johannes Mueller"))])
-  ("readme" . "README.md")
-  ("description" . "This is just to demonstrate tomlparse.el")
-  ("version" . "0.1.0") ("name" . "tomlparse-demo")))
+((dependency-groups (dev . ["pytest>=8.3.5"]))
+ (project (optional-dependencies (jupyter . ["jupyter>=1.1.1"]))
+	  (dependencies . ["pandas>=2.2.3"])
+	  (requires-python . ">=3.13.2")
+	  (authors
+	   . [((email . "github@johannes-mueller.org")
+	       (name . "Johannes Mueller"))])
+	  (readme . "README.md")
+	  (description . "This is just to demonstrate tomlparse.el")
+	  (version . "0.1.0") (name . "tomlparse-demo")))
 
 ELISP> (tomlparse-file "pyproject.toml" :object-type 'plist)
-("dependency-groups" ("dev" ["pytest>=8.3.5"]) "project"
- ("optional-dependencies" ("jupyter" ["jupyter>=1.1.1"])
-  "dependencies" ["pandas>=2.2.3"] "requires-python" ">=3.13.2"
-  "authors"
-  [("email" "github@johannes-mueller.org" "name" "Johannes Mueller")]
-  "readme" "README.md" "description"
-  "This is just to demonstrate tomlparse.el" "version" "0.1.0" "name"
-  "tomlparse-demo"))
+(dependency-groups (dev ["pytest>=8.3.5"]) project
+		   (optional-dependencies (jupyter ["jupyter>=1.1.1"])
+					  dependencies
+					  ["pandas>=2.2.3"]
+					  requires-python ">=3.13.2"
+					  authors
+					  [(email
+					    "github@johannes-mueller.org"
+					    name "Johannes Mueller")]
+					  readme "README.md"
+					  description
+					  "This is just to demonstrate tomlparse.el"
+					  version "0.1.0" name
+					  "tomlparse-demo"))
 ```
 
 ## Why a new TOML parser – isn't there toml.el?
