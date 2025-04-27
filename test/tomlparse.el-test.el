@@ -288,6 +288,11 @@ keep-ws-before = \"\"\"a\t\nb\"\"\"")
     (let ((expected (external-toml-parser)))
       (should (hash-equal (tomlparse-buffer) expected)))))
 
+(ert-deftest white-space-tab-in-key ()
+  (with-temp-buffer
+    (insert "\"  much 		  whitespace  	\\n  \\r\\n  \" = 3")
+    (let ((expected `((,(intern "  much \t\t  whitespace  \t\n  \r\n  ") . 3))))
+      (should (equal (tomlparse-buffer :object-type 'alist) expected)))))
 
 (ert-deftest strings-wysiwyg ()
   (with-temp-buffer

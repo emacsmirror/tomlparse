@@ -235,7 +235,7 @@ because that's the one we will add entries to."
 
 (defun tomlparse--string-literal (string)
   "Parse the sting literal STRING from TOML data."
-  (json-parse-string (tomlparse--capital-unicode-escapes string)))
+  (json-parse-string (tomlparse--capital-unicode-escapes (string-replace "\t" "\\t" string))))
 
 (defun tomlparse--capital-unicode-escapes (string)
   "Unescape unicode sequences in STRING."
