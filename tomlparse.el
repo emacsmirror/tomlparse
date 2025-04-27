@@ -338,7 +338,7 @@ because that's the one we will add entries to."
   (let (alist)
     (maphash (lambda (key value)
                (let ((value (tomlparse--object-for-alist value)))
-                 (setq alist (cons (cons (intern-soft key) value) alist))))
+                 (setq alist (cons (cons (intern key) value) alist))))
              hash-table)
     alist))
 
@@ -354,7 +354,7 @@ because that's the one we will add entries to."
   (let (plist)
     (maphash (lambda (key value)
                (let ((value (tomlparse--object-for-plist value)))
-                 (setq plist (cons (intern-soft key) (cons value plist)))))
+                 (setq plist (cons (intern key) (cons value plist)))))
              hash-table)
     plist))
 
