@@ -282,15 +282,13 @@ because that's the one we will add entries to."
   "Unmask t \"\"\"triple quoted string\"\"\" STRING."
   (tomlparse--string-literal
    (format "\"%s\""
-           (string-replace
-            "\t" "\\t"
-            (string-replace
-             "\n" "\\n"
-             (tomlparse--remove-umasked-line-breaks
-              (string-replace
-               "\"" "\\\""
-               (string-replace
-                "\\\"" "\"" string))))))))
+           (thread-last
+             string
+             (string-replace "\\\"" "\"")
+             (string-replace "\"" "\\\"")
+             (tomlparse--remove-umasked-line-breaks)
+             (string-replace "\n" "\\n")
+             (string-replace "\t" "\\t")))))
 
 (defconst tomlparse--line-break-regexp "^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)\\\\[ \t]*\n[ \t\n]*")
 
