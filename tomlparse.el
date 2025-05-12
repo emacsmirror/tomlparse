@@ -1,10 +1,10 @@
-;;; tomlparse.el --- A straight-foward tree sitter based parser for toml data  -*- lexical-binding: t; -*-
+;;; tomlparse.el --- A straight-forward tree sitter based parser for toml data  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2025 Johannes Mueller
 
 ;; Author: Johannes Mueller <github@johannes-mueller.org>
 ;; URL: https://github.com/johannes-mueller/tomlparse.el
-;; Version: 0.0.1
+;; Version: 1.0.0
 ;; License: GPLv3
 ;; SPDX-License-Identifier: GPL-3.0-only
 ;; Package-Requires: ((emacs "29.1"))

@@ -2,6 +2,7 @@
 [![Unit
 tests](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/unit-tests.yml)
 [![melpazoid](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/melpazoid.yml/badge.svg)](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/melpazoid.yml)
+[![MELPA](https://melpa.org/packages/tomlparse-badge.svg)](https://melpa.org/#/tomlparse)
 # tomlparse.el
 
 A straight forward toml parser fore elisp
@@ -128,21 +129,21 @@ though.
 
 ## Installation
 
-At the moment the most convenient method to install it is using
-[straight.el](https://github.com/raxod502/straight.el). Put the following lines
-into your startup file.
+Usually you'd want to install the package as dependency of another package that
+parses TOML files.  If you want to install it independently, you can do it from
+[MELPA](https://melpa.org/).  Probably you also will need to add the current
+TOML grammar.  If you have MELPA configured in you startup files you can add
+something like to achieve all of that.
 
-``` elisp
+```elisp
 (use-package tomlparse
-  :straight (tomlparse :type git :host github :repo "johannes-mueller/tomlparse.el")
   :init
   (add-to-list 'treesit-language-source-alist
                '(toml "https://github.com/tree-sitter-grammars/tree-sitter-toml"))
   (unless (treesit-language-available-p 'toml)
     (treesit-install-language-grammar 'toml)))
-```
 
-This also installs the TOML language grammar if it is not already installed.
+```
 
 
 ## Limitations
