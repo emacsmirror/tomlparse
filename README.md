@@ -3,6 +3,7 @@
 tests](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/unit-tests.yml)
 [![melpazoid](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/melpazoid.yml/badge.svg)](https://github.com/johannes-mueller/tomlparse.el/actions/workflows/melpazoid.yml)
 [![MELPA](https://melpa.org/packages/tomlparse-badge.svg)](https://melpa.org/#/tomlparse)
+[![MELPA Stable](https://stable.melpa.org/packages/tomlparse-badge.svg)](https://stable.melpa.org/#/tomlparse)
 # tomlparse.el
 
 A straight forward toml parser fore elisp
