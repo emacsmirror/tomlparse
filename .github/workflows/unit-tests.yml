@@ -10,6 +10,8 @@ on:
     branches:
       - main
       - ci-debug
+  schedule:
+    - cron: "0 9 * * 0"
 
 jobs:
   unit-tests:

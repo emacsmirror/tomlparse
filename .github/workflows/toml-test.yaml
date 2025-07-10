@@ -10,6 +10,8 @@ on:
     branches:
       - main
       - ci-debug
+  schedule:
+    - cron: "0 10 * * 0"
 
 jobs:
   toml-test:
