@@ -30,9 +30,9 @@ jobs:
           - emacs_version: 'release-snapshot'
             allow_failure: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Checkout toml test
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: toml-lang/toml-test
           path: toml-test
@@ -40,12 +40,12 @@ jobs:
         with:
           version: ${{ matrix.emacs_version }}
 
-      - uses: conao3/setup-cask@master
+      - uses: cask/setup-cask@master
         with:
           version: 'snapshot'
 
       - name: install toml2json
-        uses: baptiste0928/cargo-install@v3.3.0
+        uses: baptiste0928/cargo-install@v3
         with:
           crate: toml2json
 
